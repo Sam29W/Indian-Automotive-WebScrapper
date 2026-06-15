@@ -28,30 +28,20 @@ Built with a professional geometric UI inspired by OLX India, this architecture 
 ## ⚙️ Local Development Instructions
 
 ### Pre-requisites
-Ensure you have [Node.js (LTS)](https://nodejs.org/) installed on your machine.
+Ensure you have Node.js (LTS) installed on your machine.
 
 ### 1. Installation
 Clone the repository and install the required structural package modules:
-```bash
-npm install
-2. Execution
+* Run command: `npm install`
+
+### 2. Execution
 Spin up the persistent backend analytics server:
+* Run command: `node server.js`
 
-Bash
-node server.js
-3. Launching Dashboard UI
-Right-click on index.html inside Visual Studio Code and select Open with Live Server to serve the application context interface securely on port 5500.
-
-🥷 Anti-Bot Evasion Implementation Note
-To prevent enterprise target CDNs from blacklisting local hardware IPs, the scraping core utilizes custom user-agent spoofing algorithms and actively strips automated browser footprints (navigator.webdriver = true).
-
+### 3. Launching Dashboard UI
+Right-click on `index.html` inside Visual Studio Code and select **Open with Live Server** to serve the application context interface securely on port `5500`.
 
 ---
 
-### Step 2: Push the README to GitHub
-Go to your terminal panel at the bottom of VS Code, run these three quick commands to update your cloud page, and you are officially done for the night:
-
-```bash
-git add README.md
-git commit -m "docs: add comprehensive production-grade readme documentation"
-git push origin main
+## 🥷 Anti-Bot Evasion Implementation Note
+To prevent enterprise target CDNs from blacklisting local hardware IPs, the scraping core utilizes custom user-agent spoofing algorithms and actively strips automated browser footprints (`navigator.webdriver = true`).
