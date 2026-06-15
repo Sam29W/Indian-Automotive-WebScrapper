@@ -1,0 +1,317 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebScrapper - Premium India Automotive Classifieds</title>
+    <style>
+        :root {
+            --olx-teal: #002f34;
+            --olx-mint: #23e5db;
+            --bg-body: #f2f4f5;
+            --bg-card: #ffffff;
+            --text-main: #002f34;
+            --text-sub: #406367;
+            --border: #ced6d6;
+        }
+        .light-mode {
+            --bg-body: #0b0f19;
+            --bg-card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+            --border: #334155;
+        }
+
+        body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; transition: background 0.2s; }
+        .navbar { background: var(--olx-teal); padding: 12px 40px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .logo-text { font-size: 26px; font-weight: 900; letter-spacing: 1px; color: var(--olx-mint); font-style: italic; }
+        
+        .main-container { display: flex; max-width: 1400px; margin: 25px auto; padding: 0 20px; gap: 20px; position: relative; }
+        .sidebar { flex: 0.7; background: var(--bg-card); border-radius: 4px; border: 1px solid var(--border); padding: 18px; max-height: 80vh; overflow-y: auto; }
+        .content-area { flex: 2.3; display: flex; flex-direction: column; }
+        .chat-panel { flex: 1; background: var(--bg-card); border-radius: 4px; border: 1px solid var(--border); padding: 18px; display: flex; flex-direction: column; max-height: 80vh; }
+
+        .search-strip { background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; padding: 15px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        input, select { padding: 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-body); color: var(--text-main); font-size: 14px; outline: none; }
+        
+        .btn-action { background: var(--olx-teal); color: white; border: none; padding: 14px; font-size: 15px; font-weight: bold; border-radius: 4px; cursor: pointer; border: 2px solid var(--olx-teal); }
+        .btn-action:hover { background: white; color: var(--olx-teal); }
+        .btn-orange { background: #f97316; color: white; border: none; padding: 14px; font-size: 15px; font-weight: bold; border-radius: 4px; cursor: pointer; border: 2px solid #f97316; }
+        .btn-orange:hover { background: white; color: #f97316; }
+        .theme-btn { background: transparent; border: 2px solid var(--olx-mint); color: var(--olx-mint); padding: 6px 14px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+
+        .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px; overflow-y: auto; max-height: 52vh; padding-right: 5px; }
+        .product-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; position: relative; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; height: 260px; }
+        .product-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+        .featured-tag { position: absolute; top: 10px; left: 10px; background: #ffce32; color: #002f34; font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 2px; text-transform: uppercase; }
+        
+        .card-details { padding: 15px; display: flex; flex-direction: column; justify-content: space-between; flex: 1; }
+        .card-price { font-size: 20px; font-weight: bold; color: var(--text-main); margin: 0 0 6px 0; }
+        .card-title { font-size: 15px; color: var(--text-sub); margin: 0 0 10px 0; font-weight: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .card-meta { display: flex; gap: 8px; font-size: 12px; color: var(--text-sub); margin-bottom: auto; background: var(--bg-body); padding: 4px 8px; border-radius: 4px; align-self: flex-start; }
+        .card-loc-date { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub); border-top: 1px solid var(--border); padding-top: 8px; margin-top: 10px; }
+
+        /* Premium Product Display Inspector Modal Layout UI */
+        .preview-modal { display: none; position: fixed; top: 5%; left: 15%; width: 70%; height: 85vh; background: var(--bg-card); border: 2px solid var(--olx-teal); box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-radius: 8px; z-index: 1000; padding: 30px; box-sizing: border-box; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 15px; }
+        .close-btn { font-size: 24px; font-weight: bold; cursor: pointer; color: var(--text-main); background: none; border: none; }
+        .modal-body-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; margin-top: 20px; }
+        .spec-box { background: var(--bg-body); padding: 15px; border-radius: 6px; border: 1px solid var(--border); }
+        .seller-card { background: var(--olx-teal); color: white; padding: 20px; border-radius: 6px; text-align: center; }
+
+        .chat-box { flex: 1; background: var(--bg-body); border-radius: 4px; border: 1px solid var(--border); overflow-y: auto; padding: 12px; margin-bottom: 10px; height: 50vh; }
+        .msg { padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; font-size: 13.5px; max-width: 85%; line-height: 1.4; }
+        .user-bubble { background: #002f34; color: white; margin-left: auto; border-bottom-right-radius: 0; }
+        .ai-bubble { background: white; color: #002f34; border: 1px solid var(--border); border-bottom-left-radius: 0; }
+        .hist-chip { background: var(--bg-body); border: 1px solid var(--border); border-radius: 4px; padding: 10px; margin-bottom: 8px; font-size: 12.5px; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="logo-text">WebScrapper</div>
+        <div style="font-size: 14px; font-weight: bold; letter-spacing: 0.5px;">AUTOMOTIVE INTELLIGENCE CLASSIFIEDS</div>
+        <button class="theme-toggle theme-btn" id="themeBtn">Switch Dark UI</button>
+    </div>
+
+    <!-- UI Wireframe Blueprint Layout Reference -->
+    ---
+    ## Dynamic Marketplace Wireframe Setup
+    <Image src="image_agent_tag_10459835558689958164" alt="Premium OLX layout interface showing clean hero banner layout grid product rows" caption="OLX Layout Concept Reference" />
+    ---
+
+    <div class="main-container">
+        
+        <div class="sidebar">
+            <h3 style="margin: 0 0 15px 0; font-size: 14px; border-bottom: 2px solid var(--olx-teal); padding-bottom: 6px;">SEARCH PIPELINE HISTORY</h3>
+            <div id="historyLogs">Syncing local logs...</div>
+        </div>
+
+        <div class="content-area">
+            <div class="search-strip">
+                <input type="text" id="makeFilter" placeholder="Brand Make (e.g., Maruti)">
+                <input type="text" id="modelFilter" placeholder="Variant Model (e.g., Swift)">
+                <input type="number" id="priceFilter" placeholder="Max Budget Price (INR)">
+                <input type="number" id="yearFilter" placeholder="Min Reg Year">
+                <input type="number" id="mileageFilter" placeholder="Max Mileage (KM)">
+                
+                <select id="fuelFilter">
+                    <option value="">Select Fuel Type</option>
+                    <option value="Petrol">Petrol</option>
+                    <option value="Diesel">Diesel</option>
+                    <option value="CNG">CNG</option>
+                </select>
+                <select id="transFilter">
+                    <option value="">Select Transmission</option>
+                    <option value="Manual">Manual</option>
+                    <option value="Automatic">Automatic</option>
+                </select>
+                <select id="ownerFilter">
+                    <option value="">Select Ownership Profile</option>
+                    <option value="First Owner">First Owner</option>
+                    <option value="Second Owner">Second Owner</option>
+                </select>
+                
+                <button class="btn-action" id="harvestBtn" style="grid-column: span 2;">Harvest 300 New Nodes</button>
+                <button class="btn-orange" id="applyFilterBtn" style="grid-column: span 2;">Apply Filter Specifications</button>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+                <h3 style="margin:0; font-size:16px; text-transform: uppercase;">Classified Recommendations Engine</h3>
+                <span id="metricCount" style="font-weight:bold; color:var(--text-sub); font-size:14px;">0 listings active</span>
+            </div>
+
+            <div class="cards-grid" id="cardsGrid"></div>
+        </div>
+
+        <div class="chat-panel">
+            <h3 style="margin: 0 0 15px 0; font-size: 14px; border-bottom: 2px solid var(--olx-teal); padding-bottom: 6px;">MINI-SLM DIAGNOSTIC AGENT</h3>
+            <div class="chat-box" id="chatLogs">
+                <div class="msg ai-bubble">Welcome. Run an aggregation query or ask me metric bounds constraints lines!</div>
+            </div>
+            <div style="display:flex; gap:6px;">
+                <input type="text" id="chatInput" placeholder="Ask about cheapest or average price ratios..." style="flex:1;">
+                <button id="sendChatBtn" style="background:var(--olx-teal); color:white; border:none; padding:0 18px; border-radius:4px; font-weight:bold; cursor:pointer;">Query</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Product Deep Inspection Layout Modal Viewer Panel -->
+    <div class="preview-modal" id="inspectionModal">
+        <div class="modal-header">
+            <h2 id="modalPrice" style="margin:0; font-size: 28px; color: var(--olx-teal);">₹0</h2>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body-grid">
+            <div>
+                <h3 id="modalTitle" style="margin:0 0 15px 0; font-size:22px;">Variant Full Specification Header</h3>
+                <div class="spec-box">
+                    <h4 style="margin:0 0 10px 0; color:var(--olx-teal);">Verified Listing Technical Layout</h4>
+                    <p>🗓️ <b>Registration Model Year:</b> <span id="modalYear">N/A</span></p>
+                    <p>🛣️ <b>Odometer Distance Covered:</b> <span id="modalKm">0</span> km</p>
+                    <p>⛽ <b>Fuel Sub-Type Variant:</b> <span id="modalFuel">N/A</span></p>
+                    <p>⚙️ <b>Transmission Core Config:</b> <span id="modalTrans">N/A</span></p>
+                    <p>👤 <b>Ownership Allocation Matrix:</b> <span id="modalOwner">N/A</span></p>
+                </div>
+            </div>
+            <div>
+                <div class="seller-card">
+                    <h3 style="margin:0 0 10px 0;">Verified Marketplace Vendor</h3>
+                    <p style="font-size:14px; margin-bottom:20px;">📍 Location Profile Region: <b id="modalLoc">N/A</b></p>
+                    <button style="width:100%; padding:12px; background:var(--olx-mint); color:var(--olx-teal); border:none; border-radius:4px; font-weight:bold; cursor:pointer;" onclick="alert('Connecting to local regional dealer API proxy node...')">Make Offer / Contact Dealer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cardsGrid = document.getElementById('cardsGrid');
+        const metricCount = document.getElementById('metricCount');
+        const historyLogs = document.getElementById('historyLogs');
+        const harvestBtn = document.getElementById('harvestBtn');
+        const applyFilterBtn = document.getElementById('applyFilterBtn');
+        const themeBtn = document.getElementById('themeBtn');
+        const chatLogs = document.getElementById('chatLogs');
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChatBtn');
+        
+        let loadedListingsCache = [];
+
+        function formatIndianCurrency(num) {
+            return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
+        }
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            themeBtn.innerText = document.body.classList.contains('light-mode') ? "Switch Classic Light UI" : "Switch Dark UI";
+        });
+
+        async function syncHistory() {
+            try {
+                const res = await fetch('http://localhost:5000/api/history');
+                const data = await res.json();
+                historyLogs.innerHTML = data.map(h => `<div class="hist-chip">🗂️ <b>${h.query_text}</b><br><small>Crawled ${h.record_count} items<br>${new Date(h.timestamp).toLocaleTimeString()}</small></div>`).join('');
+            } catch(e){}
+        }
+
+        async function syncMarketCards() {
+            // FIX THE PRICE LEAK: Flush the visual canvas workspace clean immediately
+            cardsGrid.innerHTML = `<div style="grid-column:span 3; text-align:center; padding:50px; color:var(--text-sub);">Filtering live SQL rows data context...</div>`;
+
+            const make = document.getElementById('makeFilter').value;
+            const model = document.getElementById('modelFilter').value;
+            const price = document.getElementById('priceFilter').value;
+            const year = document.getElementById('yearFilter').value;
+            const mileage = document.getElementById('mileageFilter').value;
+            const fuel = document.getElementById('fuelFilter').value;
+            const trans = document.getElementById('transFilter').value;
+            const owner = document.getElementById('ownerFilter').value;
+
+            const url = `http://localhost:5000/api/listings?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&max_price=${price}&min_year=${year}&max_mileage=${mileage}&fuel_type=${fuel}&transmission=${trans}&owners=${owner}`;
+
+            try {
+                const res = await fetch(url);
+                loadedListingsCache = await res.json();
+                
+                metricCount.innerText = `${loadedListingsCache.length} listings located matching parameters`;
+                cardsGrid.innerHTML = '';
+
+                if(loadedListingsCache.length === 0) {
+                    cardsGrid.innerHTML = `<div style="grid-column:span 3; text-align:center; padding:50px; color:var(--text-sub);">No records found matching those bounds. Run the mass crawler node!</div>`;
+                    return;
+                }
+
+                loadedListingsCache.forEach((item, index) => {
+                    cardsGrid.innerHTML += `
+                        <div class="product-card" onclick="openInspectionModal(${index})">
+                            <span class="featured-tag">Verified</span>
+                            <div class="card-details">
+                                <div>
+                                    <h2 class="card-price">${formatIndianCurrency(item.price_inr)}</h2>
+                                    <div class="card-meta">${item.year} • ${item.fuel_type}</div>
+                                    <h3 class="card-title" title="${item.model}">${item.model}</h3>
+                                </div>
+                                <div style="font-size:12px; color:var(--text-sub); margin-top:2px;">
+                                    ⚙️ ${item.transmission} • 👤 ${item.owners}
+                                </div>
+                                <div class="card-loc-date">
+                                    <span>📍 ${item.location}</span>
+                                    <span>Verified Product</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch(e){}
+        }
+
+        // Inline Inspection Modal Logic
+        function openInspectionModal(index) {
+            const vehicle = loadedListingsCache[index];
+            if (!vehicle) return;
+
+            document.getElementById('modalPrice').innerText = formatIndianCurrency(vehicle.price_inr);
+            document.getElementById('modalTitle').innerText = vehicle.model;
+            document.getElementById('modalYear').innerText = vehicle.year;
+            document.getElementById('modalKm').innerText = vehicle.mileage_km.toLocaleString('en-IN');
+            document.getElementById('modalFuel').innerText = vehicle.fuel_type;
+            document.getElementById('modalTrans').innerText = vehicle.transmission;
+            document.getElementById('modalOwner').innerText = vehicle.owners;
+            document.getElementById('modalLoc').innerText = vehicle.location;
+
+            document.getElementById('inspectionModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('inspectionModal').style.display = 'none';
+        }
+
+        harvestBtn.addEventListener('click', async () => {
+            const makeVal = document.getElementById('makeFilter').value.trim() || "Maruti";
+            const modelVal = document.getElementById('modelFilter').value.trim() || "Swift";
+
+            harvestBtn.innerText = `CRAWLING 300 DATA PLUGS FOR ${makeVal.toUpperCase()}...`;
+            harvestBtn.style.background = "#406367";
+
+            await fetch('http://localhost:5000/api/scrape', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ make: makeVal, model: modelVal })
+            });
+
+            setTimeout(async () => {
+                await syncMarketCards();
+                await syncHistory();
+                harvestBtn.innerText = "Harvest 300 New Nodes";
+                harvestBtn.style.background = "var(--olx-teal)";
+            }, 1200);
+        });
+
+        applyFilterBtn.addEventListener('click', syncMarketCards);
+
+        async function triggerChatInteraction() {
+            const text = chatInput.value.trim();
+            if(!text) return;
+
+            chatLogs.innerHTML += `<div class="msg user-bubble">${text}</div>`;
+            chatInput.value = '';
+            chatLogs.scrollTop = chatLogs.scrollHeight;
+
+            const res = await fetch('http://localhost:5000/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+            const data = await res.json();
+            chatLogs.innerHTML += `<div class="msg ai-bubble">${data.response}</div>`;
+            chatLogs.scrollTop = chatLogs.scrollHeight;
+        }
+
+        sendChatBtn.addEventListener('click', triggerChatInteraction);
+        chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') triggerChatInteraction(); });
+
+        window.addEventListener('DOMContentLoaded', () => { syncMarketCards(); syncHistory(); });
+    </script>
+</body>
+</html>
